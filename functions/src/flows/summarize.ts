@@ -1,18 +1,18 @@
-import { defineFlow } from '@genkit-ai/core';
-import { z } from 'zod';
-import { googleAI } from '@genkit-ai/googleai';
+import {defineFlow} from "@genkit-ai/core";
+import {z} from "zod";
+import {googleAI} from "@genkit-ai/googleai";
 
-const model = googleAI().models.text('models/text-bison-001');
+const model = googleAI().models.text("models/text-bison-001");
 
 export const summarizeText = defineFlow(
   {
-    name: 'summarizeText',
+    name: "summarizeText",
     inputSchema: z.object({
       text: z.string(),
     }),
     outputSchema: z.string(),
   },
-  async ({ text }) => {
+  async ({text}) => {
     const result = await model.generateContent({
       prompt: `Summarize the following:\n\n${text}`,
     });
