@@ -1,17 +1,13 @@
-import { summarizeText } from "../src/flows/summarize";
-
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     const { text } = req.body;
 
-    try {
-      const summary = await summarizeText.run({ text });
-      res.status(200).json({ summary });
-    } catch (error) {
-      console.error('Error running summarizeText:', error);
-      res.status(500).send('Error summarizing');
-    }
+    // Return fake summary
+    return res.status(200).json({
+      summary: "This is a simplified summary (demo response)."
+    });
   } else {
-    res.status(405).send('Method Not Allowed');
+    res.status(405).end(); // Method not allowed
   }
 }
+
