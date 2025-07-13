@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useState, useTransition} from 'react';
+import React, { useState, useTransition } from 'react';
 import {
   Card,
   CardContent,
@@ -8,23 +8,29 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import {Textarea} from '@/components/ui/textarea';
-import {Button} from '@/components/ui/button';
-import {Label} from '@/components/ui/label';
-import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group';
-import {Loader2, Download, FileText, Sparkles} from 'lucide-react';
-import {summarizeText} from '@/ai/flows/summarize-text';
-import type {SummarizeTextInput} from '@/ai/flows/summarize-text';
-import {useToast} from '@/hooks/use-toast';
-import {Alert, AlertDescription, AlertTitle} from './ui/alert';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Loader2, Download, FileText, Sparkles } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+
+type FormatType = 'summary' | 'bullet points';
 
 export function SimplifyClient() {
   const [isPending, startTransition] = useTransition();
-  const {toast} = useToast();
+  const { toast } = useToast();
   const [text, setText] = useState('');
-  const [format, setFormat] =
-    useState<SummarizeTextInput['format']>('summary');
+  const [format, setFormat] = useState<FormatType>('summary');
   const [result, setResult] = useState<string | null>(null);
+
+  const getDemoSummary = (input: string, format: FormatType) => {
+    if (!input.trim()) return '';
+    if (format === 'bullet points') {
+      return `• Simplified point one from demo text.\n• Simplified point two.\n• Another clear bullet.`;
+    }
+    return 'This is a simplified summary of your input (static demo).';
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -37,34 +43,16 @@ export function SimplifyClient() {
       return;
     }
 
-    startTransition(async () => {
+    startTransition(() => {
       setResult(null);
-      try {
-        const {simplifiedText} = await summarizeText({text, format});
-        setResult(simplifiedText);
-      } catch (error) {
-        console.error('Simplification failed:', error);
-        let description = 'An unexpected error occurred. Please try again.';
-        if (error instanceof Error) {
-            if (/quota|429/i.test(error.message)) {
-                description =
-                    'You have exceeded the free usage limit for this feature. Please check your plan and billing details.';
-            } else if (/failed to|could not/i.test(error.message)) {
-                description = 'The AI model could not process your request. Please try modifying your input or try again later.';
-            }
-        }
-        toast({
-          variant: 'destructive',
-          title: 'Simplification Failed',
-          description,
-        });
-      }
+      const simplifiedText = getDemoSummary(text, format);
+      setResult(simplifiedText);
     });
   };
 
   const downloadText = () => {
     if (!result) return;
-    const blob = new Blob([result], {type: 'text/plain'});
+    const blob = new Blob([result], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -95,9 +83,7 @@ export function SimplifyClient() {
             />
             <RadioGroup
               value={format}
-              onValueChange={value =>
-                setFormat(value as SummarizeTextInput['format'])
-              }
+              onValueChange={value => setFormat(value as FormatType)}
               className="flex items-center gap-4"
             >
               <Label className="font-normal">Format:</Label>
@@ -119,6 +105,7 @@ export function SimplifyClient() {
           </CardFooter>
         </form>
       </Card>
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">

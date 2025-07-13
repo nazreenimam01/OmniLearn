@@ -1,4 +1,4 @@
-import { summarizeText } from '../src/flows/summarize';
+import { summarizeText } from "../src/flows/summarize";
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
